@@ -8,6 +8,13 @@
 
 import Foundation
 import MapKit
+import CoreLocation
+
+open class FBNonClusteredAnnotation : NSObject, MKAnnotation {
+    open var coordinate: CLLocationCoordinate2D {
+        return CLLocationCoordinate2D()
+    }
+}
 
 public protocol FBClusteringManagerDelegate: NSObjectProtocol {
     func cellSizeFactor(forCoordinator coordinator: FBClusteringManager) -> CGFloat
@@ -97,9 +104,13 @@ public class FBClusteringManager {
                 var annotations = [MKAnnotation]()
                 
 				tree?.enumerateAnnotations(inBox: mapBox) { obj in
-                    totalLatitude += obj.coordinate.latitude
-                    totalLongitude += obj.coordinate.longitude
-                    annotations.append(obj)
+                    if (obj is FBNonClusteredAnnotation) {
+                        clusteredAnnotations.append(obj)
+                    } else {
+                        totalLatitude += obj.coordinate.latitude
+                        totalLongitude += obj.coordinate.longitude
+                        annotations.append(obj)
+                    }
                 }
 
 				let count = annotations.count
